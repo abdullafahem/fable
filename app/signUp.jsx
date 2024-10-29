@@ -1,11 +1,4 @@
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useRef, useState } from 'react';
 import ScreenWrapper from '../components/ScreenWrapper';
 import { StatusBar } from 'expo-status-bar';
@@ -16,6 +9,7 @@ import { theme } from '../constants/theme';
 import Input from '../components/Input';
 import Icon from '../assets/icons';
 import Button from '../components/Button';
+import { supabase } from '../lib/supabase';
 
 const SignUp = () => {
   const router = useRouter();
@@ -28,7 +22,32 @@ const SignUp = () => {
     if (!nameRef.current || !emailRef.current || !passwordRef.current) {
       Alert.alert('Sign Up', 'Please fill all the fields!');
     }
-    // good to go
+
+    let name = nameRef.current.trim();
+    let email = emailRef.current.trim();
+    let password = passwordRef.current.trim();
+
+    setLoading(true);
+
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
+      },
+    });
+
+    // console.log('session', session);
+    // console.log('error', error);
+    if (error) {
+      Alert.alert('Sign Up', error.message);
+    }
+    setLoading(false);
   };
   return (
     <ScreenWrapper bg='white'>
